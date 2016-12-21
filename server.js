@@ -51,24 +51,19 @@ var requireAuth = function(req, res, next) {
 };
 
 app.get('/auth/github', passport.authenticate('github'));
-app.get('/auth/github/callback', passport.authenticate('github',{failureRedirect: '/#!/', successRedirect:'/#!/home'}));
+app.get('/auth/github/callback', passport.authenticate('github', {failureRedirect: '/#!/', successRedirect:'/#!/home'}));
 
 app.get('/api/github/following', requireAuth, function(req, res) {
 
     var url = req.user.profile._json.followers_url;
 
     var options = {
-        auth: {
-            bearer: req.user.token
-        },
-        headers: {
-            'User-Agent': 'request'
-        }
+        auth: {bearer: req.user.token},
+        headers: {'User-Agent': 'request'}
     };
 
     var callback = function(err, response, body) {
         var parsed = JSON.parse(response.body);
-
         res.json(parsed);
     };
 
@@ -81,23 +76,16 @@ app.get('/api/github/:username/activity', requireAuth, function(req, res) {
     var url = 'https://api.github.com/users/'+ req.params.username +'/events';
 
     var options = {
-        auth: {
-            bearer: req.user.token
-        },
-        headers: {
-            'User-Agent': 'request'
-        }
+        auth: {bearer: req.user.token},
+        headers: {'User-Agent': 'request'}
     };
 
-    request.get(url, options, function(err, response, body) {
-
-        console.log(response.body);
-
+    var callback = function(err, response, body) {
         var parsed = JSON.parse(response.body);
-
         res.json(parsed);
+    };
 
-    });
+    request.get(url, options, callback);
 
 });
 
